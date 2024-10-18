@@ -1,0 +1,31 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "go",
+			"label": "go: build selkieman-compose",
+			"command": "build",
+			"args": [
+				"./..."
+			],
+			"problemMatcher": [
+				"$go"
+			],
+			"group": "build",
+			"detail": "cd /home/piotrbz/selkieman-compose; go build ./..."
+		},
+		{
+			"type": "shell",
+			"label": "go: run selkieman-compose",
+			"command": "${workspaceFolder}/selkieman-compose",
+			"args": [],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "build",
+			"detail": "/home/piotrbz/selkieman-compose/selkieman-compose",
+			"dependsOn":["go: build selkieman-compose"]
+			
+		}
+	]
+}
