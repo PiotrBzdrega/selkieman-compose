@@ -11,8 +11,7 @@
 			"problemMatcher": [
 				"$go"
 			],
-			"group": "build",
-			"detail": "cd /home/piotrbz/selkieman-compose; go build ./..."
+			"group": "build"
 		},
 		{
 			"type": "shell",
@@ -22,10 +21,27 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
-			"group": "build",
-			"detail": "/home/piotrbz/selkieman-compose/selkieman-compose",
-			"dependsOn":["go: build selkieman-compose"]
-			
+			"group": "none",
+			"dependsOn": [
+				"go: build selkieman-compose"
+			]
+		},
+		{
+			"type": "shell",
+			"label": "python3: test",
+			"command": "python3 ${workspaceFolder}/test.py",
+			"args": [],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "test"
+		},
+		{
+			"type": "shell",
+			"label": "podman-compose version",
+			"command": "podman-compose version",
+			"group": "none",
+			"problemMatcher": []
 		}
 	]
 }
