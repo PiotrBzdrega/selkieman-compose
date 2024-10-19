@@ -31,32 +31,71 @@ func do_json(done chan bool, strings []string) {
 	// done <- true
 }
 
+var (
+	WarningLogger *log.Logger
+	InfoLogger    *log.Logger
+	ErrorLogger   *log.Logger
+	version       = "0.1.0"
+)
+
+func init() {
+	//TODO: activate when release
+	// file, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	// if err != nil {
+	//     log.Fatal(err)
+	// }
+
+	InfoLogger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	WarningLogger = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	ErrorLogger = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+}
+
 func main() {
 	script, err := filepath.Abs(os.Args[0])
 	if err != nil {
-		fmt.Println("Error:", err)
+		ErrorLogger.Println(err)
 		return
 	}
-	fmt.Println("Script path:", script)
 
-	//log
-	log.Println("standard logger1")
+	InfoLogger.Println("Script path:", script)
 
 	maps := []string{"apple", "raspberry", "greiphfruit"}
 	do := make(chan bool, 1)
 	go do_json(do, maps)
 
 	<-do
-	//log
-	log.Println("standard logger2")
 
-	Test1()
+	data := `{"name": "Rob", "age": 18}`
 
-	podman := Podman{}
-	podman.Init("selkieman-compose", "podman", false)
-	fmt.Println("Podman Initialized:", podman.compose, podman.podmanPath)
-	fmt.Println(podman.Output("", "help", ""))
-	podman.Exec("", "--version", "")
-	log.Println("standard logger3")
+	var obj any
+	err = json.Unmarshal([]byte(data), &obj)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	// obj now contains the parsed JSON data, but its type is "any"
+	// We can use a type assertion to access its properties:
+	m := obj.(map[string]any)
+	fmt.Println("Name:", m["name"])
+	fmt.Println("Age:", m["age"])
+
+	// podman := Podman{}
+	// podman.Init()
+	// InfoLogger.Println("Podman Initialized:", podman.compose, podman.podmanPath)
+	// InfoLogger.Println(podman.Output("", "help", ""))
+	// podman.Exec("", "--version", "")
+
+	podmanCompose := PodmanCompose{defaultNet: "default", yamlHash: "",
+		consoleColors: []string{
+			"\x1b[1;32m",
+			"\x1b[1;33m",
+			"\x1b[1;34m",
+			"\x1b[1;35m",
+			"\x1b[1;36m",
+		}}
+
+	podmanCompose.Run()
+	// podmanCompose.Start()
 
 }

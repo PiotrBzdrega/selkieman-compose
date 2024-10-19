@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"sync"
@@ -18,18 +17,17 @@ func Test1() {
 ///////////////////
 
 type Podman struct {
-	compose    string
+	compose    *PodmanCompose
 	podmanPath string
 	dryRun     bool
 	mutex      sync.Mutex
 }
 
-// Constructor to initialize the Podman struct
-func (p *Podman) Init(compose string, podmanPath string, dryRun bool) {
-	p.compose = compose
-	p.podmanPath = podmanPath
-	p.dryRun = dryRun
-}
+// // Constructor to initialize the Podman struct
+// func (p *Podman) Init() {
+// 	p.podmanPath = "podman"
+// 	p.dryRun = false
+// }
 
 // execute Podman request with arguments
 func (p *Podman) Output(podmanArgs string, cmd string, cmdArgs string) string {
@@ -50,7 +48,7 @@ func (p *Podman) Output(podmanArgs string, cmd string, cmdArgs string) string {
 	if cmdArgs != "" {
 		cmdList = append(cmdList, cmdArgs)
 	}
-	log.Println(p.podmanPath, cmdList[0:]) //TODO: remove square brackets
+	InfoLogger.Println(p.podmanPath, cmdList[0:]) //TODO: remove square brackets
 	//TODO: add logger
 
 	command := exec.Command(p.podmanPath, cmdList...)
@@ -79,14 +77,14 @@ func (p *Podman) Exec(podmanArgs string, cmd string, cmdArgs string) {
 	if cmdArgs != "" {
 		cmdList = append(cmdList, cmdArgs)
 	}
-	log.Println(p.podmanPath, cmdList[0:]) //TODO: remove square brackets
+	InfoLogger.Println(p.podmanPath, cmdList[0:]) //TODO: remove square brackets
 
 	binary, lookErr := exec.LookPath(p.podmanPath)
 	if lookErr != nil {
 		panic(lookErr)
 	}
 
-	log.Println(p.podmanPath, " path", binary) //TODO: configure logger
+	InfoLogger.Println(p.podmanPath, " path:", binary)
 
 	err := syscall.Exec(binary, cmdList, os.Environ())
 
