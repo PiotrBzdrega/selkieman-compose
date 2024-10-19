@@ -1,0 +1,76 @@
+- await is used to pause execution of an async function until an awaitable object (like coroutines, Tasks, Futures, or I/O) completes, allowing other tasks to run in the mean time
+- await can only be used in async 
+- primery purpose is to yield control back to the event loop, suspending the execution of the enclosing coroutine until the awaited object is resolved
+
+######################
+recursive dependency
+
+package main
+
+import "fmt"
+
+type Scalar1 struct {
+	ref1 *Scalar2
+	one int
+}
+
+type Scalar2 struct {
+	ref2 *Scalar1
+	two int
+}
+
+func main() {
+	sc1 := Scalar1{nil,1}
+	
+	sc2 := Scalar2{&sc1,2}
+	//sc2.two = 2
+	
+	sc1.ref1 =&sc2
+	
+	//sc2.ref2 = &sc1
+	
+	fmt.Println(sc1.ref1)
+	fmt.Println(*sc1.ref1)
+	
+	fmt.Println(sc1.ref1.two)
+	
+	fmt.Println(*sc1.ref1.ref2)
+	fmt.Println(sc1.ref1.ref2.one)
+}
+
+
+
+####################################
+WIN:
+GO BACK : ALT + LEFT
+GO FORWARD : ALT + RIGHT
+COPY LINE :  ALT + SHIFT + UP/DOWN
+DELETE LINE : CTRL + SHIFT + K
+
+UNIX:
+
+GO BACK : CTRL + SHIFT + -
+GO FORWARD : CTRL + ALT + -
+COPY LINE :  CTRL + SHIFT + UP/DOWND
+DELETE LINE : CTRL + SHIFT + K
+####################################
+
+TODO:
+komodo:
+- install bin in directory
+- build only komodo_periphery (how to append build args to rust buildroot)
+- agent configuration file
+- try https, how to create 
+
+docker:
+- how to install on separate image (check jira)
+- 
+
+podman:
+- install on mikronika cpu
+- which build options must be applied
+- selkieman-compose
+- startup scripts : activate socket (podman-docker), restart pods after reboot
+- try newer version 4.9 ? 5.x ?
+- cgroups add to /etc/fstab in post build
+- standard storage.conf and registries.conf
