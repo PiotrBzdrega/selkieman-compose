@@ -1,13 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"log"
-
-	"encoding/json"
+	// "github.com/spf13/cobra"
+	"github.com/PiotrBzdrega/selkieman-compose/cmd"
+	"github.com/PiotrBzdrega/selkieman-compose/share"
 )
 
 ///////////////////
@@ -31,33 +32,14 @@ func do_json(done chan bool, strings []string) {
 	// done <- true
 }
 
-var (
-	WarningLogger *log.Logger
-	InfoLogger    *log.Logger
-	ErrorLogger   *log.Logger
-	version       = "0.1.0"
-)
-
-func init() {
-	//TODO: activate when release
-	// file, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	// if err != nil {
-	//     log.Fatal(err)
-	// }
-
-	InfoLogger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	WarningLogger = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-	ErrorLogger = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-}
-
 func main() {
 	script, err := filepath.Abs(os.Args[0])
 	if err != nil {
-		ErrorLogger.Println(err)
+		share.ErrorLogger.Println(err)
 		return
 	}
 
-	InfoLogger.Println("Script path:", script)
+	share.InfoLogger.Println("Script path:", script)
 
 	maps := []string{"apple", "raspberry", "greiphfruit"}
 	do := make(chan bool, 1)
@@ -86,18 +68,12 @@ func main() {
 	// InfoLogger.Println(podman.Output("", "help", ""))
 	// podman.Exec("", "--version", "")
 
-	InfoLogger.Println("cmd arguments ", os.Args)
+	share.InfoLogger.Println("cmd arguments ", os.Args)
 
-	podmanCompose := PodmanCompose{defaultNet: "default", yamlHash: "",
-		consoleColors: []string{
-			"\x1b[1;32m",
-			"\x1b[1;33m",
-			"\x1b[1;34m",
-			"\x1b[1;35m",
-			"\x1b[1;36m",
-		}}
-
-	podmanCompose.Run()
+	cmd.Execute()
+	os.Exit(0)
+	// test_command := &cobra.Command{}
+	// share.PodmanCompose.Run()
 	// podmanCompose.Start()
 
 }

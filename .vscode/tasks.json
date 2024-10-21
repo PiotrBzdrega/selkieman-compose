@@ -5,19 +5,25 @@
 			"type": "go",
 			"label": "go: build selkieman-compose",
 			"command": "build",
-			"args": [
-				"./..."
-			],
+			// "args": [
+			// 	"./..."
+			// ],
 			"problemMatcher": [
 				"$go"
 			],
-			"group": "build"
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "build",
+			"dependsOn": [
+				"rm selkieman-compose"
+			],
 		},
 		{
 			"type": "shell",
 			"label": "go: run selkieman-compose",
-			"command": "${workspaceFolder}/selkieman-compose",
-			"args": ["ps"],
+			"command": "${workspaceFolder}/selkieman-compose ps -q",
+			// "args": ["ps"],
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
@@ -43,6 +49,16 @@
 			"command": "podman-compose ps",
 			"options": {
 				"cwd": "${workspaceFolder}/test"
+			},
+			"group": "none",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "rm selkieman-compose",
+			"command": "rm -f selkieman-compose",
+			"options": {
+				"cwd": "${workspaceFolder}"
 			},
 			"group": "none",
 			"problemMatcher": []
