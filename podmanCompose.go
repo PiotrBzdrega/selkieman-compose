@@ -40,7 +40,7 @@ type PodmanCompose struct {
 	podmanVersion           any
 	environ                 any
 	exitCode                any
-	commands                any
+	commands                map[string]func(*PodmanCompose, *args)
 	globalArgs              args
 	projectName             any
 	dirname                 any
@@ -103,6 +103,7 @@ func (pC *PodmanCompose) parseArgs() *args {
 func (pC *PodmanCompose) Run() {
 	InfoLogger.Printf("selkieman-compose version: %s\n", version)
 
+	//get state of all arguments
 	args := pC.parseArgs()
 	podmanPath := args.podman_path
 	// podmanPath := "/usr/bin/podman" //TODO: fake it
@@ -122,7 +123,7 @@ func (pC *PodmanCompose) Run() {
 		if infoFile.Mode().IsRegular() && infoFile.Mode()&0111 != 0 {
 			InfoLogger.Println("podman is a file and is executable")
 		} else {
-			if args.dry_run == false {
+			if !args.dry_run {
 				ErrorLogger.Printf("Binary %s has not been found.\n", podmanPath)
 				// panic("Podman Binary has not been found")
 				os.Exit(1)
@@ -132,8 +133,10 @@ func (pC *PodmanCompose) Run() {
 	//Initialize Podman object
 	pC.podman = &Podman{compose: pC, podmanPath: podmanPath, dryRun: args.dry_run}
 
-	if args.dry_run == false {
+	if !args.dry_run {
 
+		//TODO: check if should return string, python returns coroutine
+		pC.podmanVersion = pC.podman.Output([]string{"--version"}, "", []string{})
 		// not found podman version
 		if pC.podmanVersion == "" {
 			ErrorLogger.Printf("it seems that you do not have `podman` installed")
@@ -141,5 +144,11 @@ func (pC *PodmanCompose) Run() {
 		}
 		InfoLogger.Printf("using podman version: %s", pC.podmanVersion)
 	}
+	//get function name from arguments
+	cmd_name := args.command
+	//get entry (function address) from map
+	cmd := pC.commands[cmd_name]
+	//call function with given parameters
+	cmd(pC, args)
 
 }

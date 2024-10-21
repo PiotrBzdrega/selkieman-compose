@@ -1,7 +1,7 @@
 - await is used to pause execution of an async function until an awaitable object (like coroutines, Tasks, Futures, or I/O) completes, allowing other tasks to run in the mean time
 - await can only be used in async 
 - primery purpose is to yield control back to the event loop, suspending the execution of the enclosing coroutine until the awaited object is resolved
-
+- @cmd_run is decorator, that registers function as the handler for a given command
 ######################
 recursive dependency
 
@@ -42,6 +42,10 @@ func main() {
 
 ####################################
 WIN:
+
+FOLD ALL : CTRL + K, CTRL + 0
+UNFOLD ALL : CTRL + K, CTRL + J
+KEYBINDINGS : CTRL + K, CTRL + S
 GO BACK : ALT + LEFT
 GO FORWARD : ALT + RIGHT
 COPY LINE :  ALT + SHIFT + UP/DOWN
@@ -49,11 +53,18 @@ DELETE LINE : CTRL + SHIFT + K
 
 UNIX:
 
+FOLD ALL : CTRL + K, CTRL + 0
+UNFOLD ALL : CTRL + K, CTRL + J
+KEYBINDINGS : CTRL + K, CTRL + S
 GO BACK : CTRL + SHIFT + -
 GO FORWARD : CTRL + ALT + -
 COPY LINE :  CTRL + SHIFT + UP/DOWND
 DELETE LINE : CTRL + SHIFT + K
 ####################################
+
+git reset --soft HEAD~1 //reset last not pushed commit, keep changes staged
+find /usr -type f -name podman-compose //find file
+https://github.com/docker/awesome-compose/blob/master/official-documentation-samples/wordpress/README.md //.yml test file
 
 TODO:
 komodo:

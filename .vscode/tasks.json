@@ -17,14 +17,15 @@
 			"type": "shell",
 			"label": "go: run selkieman-compose",
 			"command": "${workspaceFolder}/selkieman-compose",
-			"args": [],
+			"args": ["ps"],
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
 			"group": "none",
 			"dependsOn": [
 				"go: build selkieman-compose"
-			]
+			],
+			"problemMatcher": []
 		},
 		{
 			"type": "shell",
@@ -38,8 +39,11 @@
 		},
 		{
 			"type": "shell",
-			"label": "podman-compose version",
-			"command": "podman-compose version",
+			"label": "podman-compose",
+			"command": "podman-compose ps",
+			"options": {
+				"cwd": "${workspaceFolder}/test"
+			},
 			"group": "none",
 			"problemMatcher": []
 		}

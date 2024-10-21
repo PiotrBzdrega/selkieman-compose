@@ -30,7 +30,7 @@ type Podman struct {
 // }
 
 // execute Podman request with arguments
-func (p *Podman) Output(podmanArgs string, cmd string, cmdArgs string) string {
+func (p *Podman) Output(podmanArgs []string, cmd string, cmdArgs []string) string {
 	//TODO: verify if mutex works
 	p.mutex.Lock()         // Acquire the mutex (using Mutex)
 	defer p.mutex.Unlock() // Release it after function completes
@@ -39,14 +39,14 @@ func (p *Podman) Output(podmanArgs string, cmd string, cmdArgs string) string {
 
 	//TODO: create function strToArray to merge strings
 	var cmdList []string
-	if podmanArgs != "" {
-		cmdList = append(cmdList, podmanArgs)
+	if podmanArgs != nil {
+		cmdList = append(cmdList, podmanArgs...)
 	}
 	if cmd != "" {
 		cmdList = append(cmdList, cmd)
 	}
-	if cmdArgs != "" {
-		cmdList = append(cmdList, cmdArgs)
+	if cmdArgs != nil {
+		cmdList = append(cmdList, cmdArgs...)
 	}
 	InfoLogger.Println(p.podmanPath, cmdList[0:]) //TODO: remove square brackets
 	//TODO: add logger
@@ -61,21 +61,21 @@ func (p *Podman) Output(podmanArgs string, cmd string, cmdArgs string) string {
 }
 
 // replace the current Go process with Podman
-func (p *Podman) Exec(podmanArgs string, cmd string, cmdArgs string) {
+func (p *Podman) Exec(podmanArgs []string, cmd string, cmdArgs []string) {
 
 	//TODO: create function strToArray to merge strings
 	var cmdList []string
 	if p.podmanPath != "" {
 		cmdList = append(cmdList, p.podmanPath)
 	}
-	if podmanArgs != "" {
-		cmdList = append(cmdList, podmanArgs)
+	if podmanArgs != nil {
+		cmdList = append(cmdList, podmanArgs...)
 	}
 	if cmd != "" {
 		cmdList = append(cmdList, cmd)
 	}
-	if cmdArgs != "" {
-		cmdList = append(cmdList, cmdArgs)
+	if cmdArgs != nil {
+		cmdList = append(cmdList, cmdArgs...)
 	}
 	InfoLogger.Println(p.podmanPath, cmdList[0:]) //TODO: remove square brackets
 
@@ -93,7 +93,7 @@ func (p *Podman) Exec(podmanArgs string, cmd string, cmdArgs string) {
 	}
 }
 
-func (p *Podman) Run(podmanArgs string, cmd string, cmdArgs string) {
+func (p *Podman) Run(podmanArgs []string, cmd string, cmdArgs []string) {
 	//TODO: verify if mutex works
 	p.mutex.Lock()         // Acquire the semaphore (using mutex)
 	defer p.mutex.Unlock() // Release it after function completes

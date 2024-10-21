@@ -86,6 +86,8 @@ func main() {
 	// InfoLogger.Println(podman.Output("", "help", ""))
 	// podman.Exec("", "--version", "")
 
+	InfoLogger.Println("cmd arguments ", os.Args)
+
 	podmanCompose := PodmanCompose{defaultNet: "default", yamlHash: "",
 		consoleColors: []string{
 			"\x1b[1;32m",
