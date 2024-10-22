@@ -3,6 +3,8 @@ package share
 import (
 	"flag"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type args struct {
@@ -10,7 +12,7 @@ type args struct {
 	In_pod              string
 	Pod_args            string
 	Env_file            string
-	File                []string
+	File                string
 	Profile             []string
 	Project_name        string
 	Podman_path         string
@@ -45,7 +47,7 @@ type podmanCompose struct {
 	ProjectName             string
 	dirname                 any
 	pods                    any
-	containers              []string
+	Containers              []map[string]interface{}
 	vols                    any
 	networks                any
 	defaultNet              string
@@ -171,33 +173,108 @@ func (pC *podmanCompose) Run() {
 
 }
 
-func (pC *podmanCompose) parse_compose_file() {
+func (pC *podmanCompose) Parse_compose_file() {
 	args := pC.GlobalArgs
 
 	// Get the environment variable
-	dirname, exists := os.Getenv("COMPOSE_PROJECT_DIR")
+	dirname := os.Getenv("COMPOSE_PROJECT_DIR")
 
+	// Directory
 	if dirname != "" {
 
-		infoFile, err := os.Stat(podmanPath)
+		infoFile, err := os.Stat(dirname)
 		if err != nil {
 			// If error, it could mean the file doesn't exist
-			ErrorLogger.Printf("file %s doesn't exist .\n", podmanPath)
+			ErrorLogger.Printf("Directory %s doesn't exist .\n", dirname)
 			panic(err)
-		}
-
-		InfoLogger.Println(infoFile.Mode())
-
-		//podman is a file and is executable
-		if infoFile.Mode().IsRegular() && infoFile.Mode()&0111 != 0 {
-			InfoLogger.Println("podman is a file and is executable")
 		} else {
-			if !args.Dry_run {
-				ErrorLogger.Printf("Binary %s has not been found.\n", podmanPath)
-				// panic("Podman Binary has not been found")
-				os.Exit(1)
+			if infoFile.Mode().IsDir() {
+				//Valid directory -> change
+				os.Chdir(dirname)
 			}
 		}
+	}
+	// Get the environment variable for path separator
+	pathsep := os.Getenv("COMPOSE_PATH_SEPARATOR")
+	if pathsep == "" {
+		pathsep = string(os.PathSeparator)
+	}
+
+	if args.File == "" {
+		default_str := os.Getenv("COMPOSE_FILE")
+		default_ls := []string{}
+		if default_str != "" {
+			default_ls = strings.Split(default_str, string(os.PathListSeparator))
+		} else {
+			default_ls = []string{
+				"compose.yaml",
+				"compose.yml",
+				"compose.override.yaml",
+				"compose.override.yml",
+				"podman-compose.yaml",
+				"podman-compose.yml",
+				"docker-compose.yml",
+				"docker-compose.yaml",
+				"docker-compose.override.yml",
+				"docker-compose.override.yaml",
+				"container-compose.yml",
+				"container-compose.yaml",
+				"container-compose.override.yml",
+				"container-compose.override.yaml",
+			}
+		}
+		for _, path := range default_ls {
+			if _, err := os.Stat(path); err == nil {
+				//Found compose file do net check further
+				args.File = path
+				break
+			}
+		}
+	}
+	file := args.File
+
+	if file == "" {
+		ErrorLogger.Println("no compose.yaml, docker-compose.yml or container-compose.yml file found, ")
+		ErrorLogger.Println("pass files with -f")
+		os.Exit(1)
+	}
+
+	//TODO:missing stage, do not understand why check many files
+	// 	ex = map(lambda x: x == '-' or os.path.exists(x), files)
+	// 	missing = [fn0 for ex0, fn0 in zip(ex, files) if not ex0]
+	// 	if missing:
+	// 		log.fatal("missing files: %s", missing)
+	// 		sys.exit(1)
+
+	// relative_files = files //TODO:missing stage, do not understand why check many files
+	filename := file
+	project_name := args.Project_name
+
+	// Get the absolute path of the directory containing the file
+	dirname, err := filepath.Abs(filepath.Dir(filename))
+	if err != nil {
+		ErrorLogger.Println("Cannot get absolute path to file")
+		panic(err)
+	}
+	// Get the base name of the directory
+	dirBasename := filepath.Base(dirname)
+	os.Chdir(dirname)
+
+	if args.Env_file != "" {
+		// Load .env from the Compose file's directory to preserve
+		// behavior prior to 1.1.0 and to match with Docker Compose (v2).
+		if ".env" == args.Env_file {
+			project_dotenv_file = os.path.realpath(os.path.join(dirname, ".env"))
+
+			if os.path.exists(project_dotenv_file) {
+				dotenv_dict.update(dotenv_to_dict(project_dotenv_file))
+			}
+
+		}
+
+		dotenv_path = os.path.realpath(args.env_file)
+		dotenv_dict.update(dotenv_to_dict(dotenv_path))
+
 	}
 
 }

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/PiotrBzdrega/selkieman-compose/share"
 	"github.com/spf13/cobra"
@@ -21,25 +21,46 @@ var (
 )
 
 func init() {
-	rootCmd.AddCommand(psCmd)
-	listFlagSet(psCmd)
+	rootCmd.AddCommand(imagesCmd)
+	imagesFlagSet(imagesCmd)
 }
 
-func listFlagSet(cmd *cobra.Command) {
+func imagesFlagSet(cmd *cobra.Command) {
 
 	flags := cmd.Flags()
-
-	flags.BoolVarP(&psOptions.Quiet, "quiet", "q", false, "Only display container IDs")
+	flags.BoolVarP(&imagesOptions.Quiet, "quiet", "q", false, "Only display container IDs")
 }
 
 func compose_images(cmd *cobra.Command, _ []string) error {
 
-	img_containers = [cnt for cnt in compose.containers if "image" in cnt]
-	if psOptions.Quiet {
+	share.PodmanCompose.Parse_compose_file()
+
+	// Create a slice to store the filtered results of containers
+	var imgContainers []map[string]interface{}
+	var imgNames []string
+
+	// Loop through the containers and store only those with "image" key
+	for _, cnt := range share.PodmanCompose.Containers {
+		if _, exists := cnt["image"]; exists {
+			//key exists -> store
+			imgContainers = append(imgContainers, cnt)
+		}
+	}
+
+	data := []string{}
+	if imagesOptions.Quiet {
+		// Loop through the containers and filter based on the condition
+		for _, cnt := range imgContainers {
+			if strings.Contains(cnt, "image") {
+				imgContainers = append(imgContainers, cnt)
+			}
+		}
+
 		ps_args = append(ps_args, []string{"--format", "{{.ID}}"}...)
 	} else {
 		ps_args = append(ps_args, []string{"--format", share.PodmanCompose.GlobalArgs.Format}...)
 	}
-	print(share.PodmanCompose.Podman.Output([]string{}, "ps", ps_args)) //TODO: must be run
+
+	print(share.PodmanCompose.Podman.Output([]string{}, "images", ps_args))
 	return nil
 }
